@@ -105,6 +105,13 @@ SOURCE CREDIBILITY RULES:
 - ALWAYS cite the exact source URL in your citations array
 - If you don't have credible information, say so honestly
 
+FORMATTING RULES:
+- Write in plain text WITHOUT any markdown formatting
+- DO NOT use asterisks (*) for bold or emphasis
+- DO NOT use underscores (_) for italics
+- DO NOT use markdown headers (#)
+- Use simple, clear sentences without special formatting characters
+
 ${languageInstruction}
 
 Output valid JSON only:
