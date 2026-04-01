@@ -757,7 +757,7 @@ export default function App() {
                 <span className="brand-suffix">AI</span>
               </h1>
               <p className="sidebar-description">
-                Your scholarly companion for authentic Moriones Festival heritage and traditions.
+                Your scholarly companion.
               </p>
             </div>
 
@@ -805,8 +805,7 @@ export default function App() {
             <div className="sidebar-footer">
               <p className="sidebar-footer-text">
                 Developed by:<br />
-                <strong>Gene Elpie Landoy</strong><br />
-                <span className="footer-company">DotOrbit</span>
+                <strong>DotOrbit</strong>
               </p>
             </div>
           </div>
