@@ -9,16 +9,16 @@ import './styles.css';
 
 const STARTER_PROMPTS = {
   en: [
-    'What is the Moriones Festival?',
-    'When is the Moriones Festival held?',
-    'Who is Longinus in the Moriones Festival story?',
     'What are the Moriones Lenten rites?',
+    'When are the Moriones Lenten rites held?',
+    'Who is Longinus in the Moriones Lenten rites story?',
+    'Why do people participate in the Moriones Lenten rites?',
   ],
   tl: [
-    'Ano ang Moriones Festival?',
-    'Kailan ginaganap ang Moriones Festival?',
-    'Sino si Longinus sa kuwento ng Moriones Festival?',
-    'Ano ang mga Lenten rites ng Moriones?',
+    'Ano ang mga Moriones Lenten rites?',
+    'Kailan ginaganap ang Moriones Lenten rites?',
+    'Sino si Longinus sa kuwento ng Moriones Lenten rites?',
+    'Bakit sumasali ang mga tao sa Moriones Lenten rites?',
   ],
 };
 
