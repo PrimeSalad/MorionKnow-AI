@@ -16,11 +16,22 @@ const upload = multer({ dest: "uploads/" });
 
 app.use(
   cors({
-    origin: [
-      frontendUrl,
-      "https://morion-know-ai-frontend.vercel.app",
-      /\.vercel\.app$/
-    ],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Allow localhost for development
+      if (origin.includes('localhost')) return callback(null, true);
+      
+      // Allow Vercel deployments
+      if (origin.endsWith('.vercel.app')) return callback(null, true);
+      
+      // Allow configured frontend URL
+      if (origin === frontendUrl) return callback(null, true);
+      
+      // Reject other origins
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
