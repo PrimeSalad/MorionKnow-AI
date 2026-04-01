@@ -16,7 +16,12 @@ const upload = multer({ dest: "uploads/" });
 
 app.use(
   cors({
-    origin: frontendUrl,
+    origin: [
+      frontendUrl,
+      "https://morion-know-ai-frontend.vercel.app",
+      /\.vercel\.app$/
+    ],
+    credentials: true,
   })
 );
 app.use(express.json());
