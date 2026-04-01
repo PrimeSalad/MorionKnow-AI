@@ -14,27 +14,35 @@ const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 // Configure multer for file uploads
 const upload = multer({ dest: "uploads/" });
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      // Allow localhost for development
-      if (origin.includes('localhost')) return callback(null, true);
-      
-      // Allow Vercel deployments
-      if (origin.endsWith('.vercel.app')) return callback(null, true);
-      
-      // Allow configured frontend URL
-      if (origin === frontendUrl) return callback(null, true);
-      
-      // Reject other origins
-      callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-  })
-);
+const frontendUrls = [
+  process.env.FRONTEND_URL || "http://localhost:5173",
+  "https://morion-know-ai-frontend.vercel.app",
+  "https://morionknow-ai.space"
+].filter(Boolean);
+
+// Allow all origins for now (you can restrict this later)
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.includes('localhost')) return callback(null, true);
+    
+    // Allow Vercel deployments
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    
+    // Allow .space domain
+    if (origin.endsWith('.space')) return callback(null, true);
+    
+    // Allow configured frontend URLs
+    if (frontendUrls.includes(origin)) return callback(null, true);
+    
+    // Reject other origins
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
