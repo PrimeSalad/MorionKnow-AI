@@ -7,8 +7,7 @@ const apiKey = process.env.GEMINI_API_KEY;
 // Using correct model names from https://ai.google.dev/gemini-api/docs/models/gemini
 const MODELS = [
   "gemini-1.5-flash",
-  "gemini-1.5-pro",
-  "gemini-pro"
+  "gemini-1.5-pro"
 ];
 
 let currentModelIndex = 0;
