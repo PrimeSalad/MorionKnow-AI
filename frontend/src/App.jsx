@@ -805,7 +805,8 @@ export default function App() {
             <div className="sidebar-footer">
               <p className="sidebar-footer-text">
                 Developed by:<br />
-                <strong>DotOrbit</strong>
+                <strong>Gene Elpie Landoy</strong><br />
+                <span className="footer-company">DotOrbit</span>
               </p>
             </div>
           </div>
