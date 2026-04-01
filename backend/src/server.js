@@ -20,7 +20,7 @@ app.get("/api/health", (_req, res) => {
 
   res.json({
     status: "ok",
-    app: "MoreYun AI",
+    app: "MorionKnow AI",
     sources: knowledge.sources,
   });
 });
@@ -43,5 +43,5 @@ app.post("/api/chat", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`MoreYun AI backend running on http://localhost:${port}`);
+  console.log(`MorionKnow AI backend running on http://localhost:${port}`);
 });

@@ -25,7 +25,7 @@ function buildPrompt(question) {
   const knowledge = getKnowledgeBase();
 
   return `
-You are MoreYun AI, a strict factual assistant about the Moriones Festival.
+You are MorionKnow AI, a strict factual assistant about the Moriones Festival.
 
 Rules:
 1. Answer only from the provided knowledge base.
@@ -66,7 +66,7 @@ export async function generateGroundedAnswer(question) {
     return {
       grounded: false,
       answer:
-        "I can only answer questions that are directly supported by the verified Moriones Festival sources loaded into MoreYun AI.",
+        "I can only answer questions that are directly supported by the verified Moriones Festival sources loaded into MorionKnow AI.",
       citations: [],
       reason: parsed.reason || "The question was not fully supported by the source data.",
     };
@@ -81,7 +81,7 @@ export async function generateGroundedAnswer(question) {
     return {
       grounded: false,
       answer:
-        "I can only answer questions that are directly supported by the verified Moriones Festival sources loaded into MoreYun AI.",
+        "I can only answer questions that are directly supported by the verified Moriones Festival sources loaded into MorionKnow AI.",
       citations: [],
       reason: "The response did not include a verifiable grounded answer.",
     };

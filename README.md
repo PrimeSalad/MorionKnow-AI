@@ -1,6 +1,6 @@
-# MoreYun AI
+# MorionKnow AI
 
-MoreYun AI is a grounded chatbot about the Moriones Festival. It uses a React frontend and an Express backend powered by the Gemini API.
+MorionKnow AI is a grounded chatbot about the Moriones Festival. It uses a React frontend and an Express backend powered by the Gemini API.
 
 ## Setup
 

@@ -17,9 +17,9 @@ const STARTER_PROMPTS = [
 const APP_CONFIG = {
   API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
   MAX_TEXTAREA_HEIGHT: 160,
-  ASSISTANT_NAME: 'MoreYun AI',
+  ASSISTANT_NAME: 'MorionKnow AI',
   INITIAL_MESSAGE:
-    'MoreYun AI is grounded, strict, and limited to verified Moriones Festival sources only. How can I help your research today?',
+    'MorionKnow AI is grounded, strict, and limited to verified Moriones Festival sources only. How can I help your research today?',
 };
 
 function parseJsonSafely(text) {
@@ -107,7 +107,7 @@ function UserAvatar() {
 function AssistantAvatar() {
   return (
     <div className="assistant-avatar" aria-hidden="true">
-      <img src="/model.gif" alt="MoreYun AI" className="assistant-avatar-gif" />
+      <img src="/model.gif" alt="MorionKnow AI" className="assistant-avatar-gif" />
     </div>
   );
 }
@@ -125,10 +125,6 @@ function Message({ item }) {
             <span className={`message-role ${isAssistant ? 'assistant' : 'user'}`}>
               {isAssistant ? APP_CONFIG.ASSISTANT_NAME : 'You'}
             </span>
-
-            {isAssistant ? (
-              <span className="verified-pill">Verified</span>
-            ) : null}
           </div>
 
           <div className="message-body">
@@ -302,28 +298,11 @@ export default function App() {
             <div className="sidebar-brand">
               <p className="eyebrow">Strict Research Mode</p>
               <h1>
-                MoreYun <span>AI</span>
+                MorionKnow <span>AI</span>
               </h1>
               <p className="sidebar-description">
                 Verified Moriones assistant with a clean responsive workspace.
               </p>
-            </div>
-
-            <div className="sidebar-section">
-              <p className="sidebar-section-title">Research Starters</p>
-
-              <div className="starter-list">
-                {STARTER_PROMPTS.map((prompt) => (
-                  <button
-                    key={prompt}
-                    type="button"
-                    className="starter-button"
-                    onClick={() => handlePromptClick(prompt)}
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div className="sidebar-section trust-box">
@@ -336,13 +315,6 @@ export default function App() {
         </aside>
 
         <section className="chat-stage">
-          <header className="mobile-topbar">
-            <div>
-              <p className="eyebrow">Verified Assistant</p>
-              <h2>MoreYun AI</h2>
-            </div>
-          </header>
-
           <div className="chat-log" ref={chatLogRef}>
             <div className="chat-log-inner">
               {messages.map((item, index) => (
@@ -350,6 +322,21 @@ export default function App() {
               ))}
 
               {loading ? <TypingIndicator /> : null}
+
+              <section className="chat-starter-panel" aria-label="Research starters">
+                <div className="chat-starter-grid">
+                  {STARTER_PROMPTS.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      className="chat-starter-button"
+                      onClick={() => handlePromptClick(prompt)}
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </section>
 
               <div className="chat-bottom-space"></div>
             </div>
@@ -364,7 +351,7 @@ export default function App() {
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
                   onKeyDown={handleTextareaKeyDown}
-                  placeholder="Ask MoreYun AI..."
+                  placeholder="Ask MorionKnow AI..."
                   rows={1}
                 />
 
