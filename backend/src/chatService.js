@@ -177,8 +177,9 @@ Output JSON only:
           'tourism.gov.ph',
           'pia.gov.ph',
           'ncca.gov.ph',
-          'wikipedia.org',
-          'britannica.com'
+          'britannica.com',
+          'edu.ph',
+          'academia.edu'
         ],
         max_results: 5
       })
