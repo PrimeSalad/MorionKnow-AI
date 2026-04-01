@@ -12,13 +12,13 @@ const STARTER_PROMPTS = {
     'What is the Moriones Festival?',
     'When is the Moriones Festival held?',
     'Who is Longinus in the Moriones Festival story?',
-    'Why do people join the Moriones Festival as penitents?',
+    'What are the Moriones Lenten rites?',
   ],
   tl: [
     'Ano ang Moriones Festival?',
     'Kailan ginaganap ang Moriones Festival?',
     'Sino si Longinus sa kuwento ng Moriones Festival?',
-    'Bakit sumasali ang mga tao sa Moriones Festival bilang penitensya?',
+    'Ano ang mga Lenten rites ng Moriones?',
   ],
 };
 
