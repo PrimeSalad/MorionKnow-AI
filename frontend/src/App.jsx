@@ -1,7 +1,7 @@
 /**
  * File: App.js
  * Description: Responsive Moriones chat interface with improved mobile sidebar and burger behavior.
- * Version: 3.1.0
+ * Version: 3.1.1
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -552,6 +552,9 @@ export default function App() {
     closeSidebar();
 
     try {
+      console.log('API URL:', APP_CONFIG.API_BASE_URL);
+      console.log('Sending request to:', `${APP_CONFIG.API_BASE_URL}/api/chat`);
+      
       const response = await fetch(`${APP_CONFIG.API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: {
