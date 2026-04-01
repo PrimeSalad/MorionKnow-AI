@@ -4,10 +4,11 @@ import { getKnowledgeBase } from "./knowledge.js";
 const apiKey = process.env.GEMINI_API_KEY;
 
 // Model fallback order - try these in sequence if quota exceeded
-// Using correct model names from https://ai.google.dev/gemini-api/docs/models/gemini
+// Using FREE TIER models from https://ai.google.dev/gemini-api/docs/models (April 2026)
 const MODELS = [
-  "gemini-1.5-flash",
-  "gemini-1.5-pro"
+  "gemini-2.5-flash",        // Fast, free, stable
+  "gemini-2.5-flash-lite",   // Cheaper, high-throughput
+  "gemini-2.5-pro"           // Best reasoning, still free
 ];
 
 let currentModelIndex = 0;
