@@ -751,13 +751,13 @@ export default function App() {
             </div>
 
             <div className="sidebar-brand">
-              <p className="eyebrow">Strict Research Mode</p>
+              <p className="eyebrow">Historical Research Archive</p>
               <h1>
                 <span className="brand-gradient">MorionKnow</span>{' '}
                 <span className="brand-suffix">AI</span>
               </h1>
               <p className="sidebar-description">
-                Verified Moriones assistant with a clean responsive workspace.
+                Your scholarly companion for authentic Moriones Festival heritage and traditions.
               </p>
             </div>
 
@@ -815,7 +815,7 @@ export default function App() {
         <section className="chat-stage">
           <header className="mobile-topbar">
             <div className="mobile-topbar-brand">
-              <p className="mobile-topbar-eyebrow">Strict Research Mode</p>
+              <p className="mobile-topbar-eyebrow">Historical Research Archive</p>
               <h2>
                 <span className="brand-gradient">MorionKnow</span>{' '}
                 <span className="brand-suffix">AI</span>
