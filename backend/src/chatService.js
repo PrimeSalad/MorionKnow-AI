@@ -266,8 +266,8 @@ export async function generateGroundedAnswer(question, language = null, enableWe
   }
 
   const notGroundedMessage = language === 'tl'
-    ? "Pasensya na, hindi ko masasagot ang tanong na yan. Magtanong tungkol sa Moriones Lenten rites sa Marinduque o Mindoro, at masasagot ko yan!"
-    : "Sorry, I can't answer that question. But ask me anything about the Moriones Lenten rites in Marinduque or Mindoro, and I'll help you!";
+    ? "Pasensya na, hindi ko masasagot ang tanong na yan. Magtanong tungkol sa Moriones Lenten rites, at masasagot ko yan!"
+    : "Sorry, I can't answer that question. But ask me anything about the Moriones Lenten rites, and I'll help you!";
 
   if (!parsed.grounded) {
     return {
