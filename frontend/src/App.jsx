@@ -757,7 +757,7 @@ export default function App() {
                 <span className="brand-suffix">AI</span>
               </h1>
               <p className="sidebar-description">
-                Your scholarly companion for authentic Moriones Lenten rites heritage and traditions.
+                Your scholarly companion.
               </p>
             </div>
 
