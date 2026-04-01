@@ -27,8 +27,8 @@ const APP_CONFIG = {
   MAX_TEXTAREA_HEIGHT: 160,
   ASSISTANT_NAME: 'MorionKnow AI',
   INITIAL_MESSAGE: {
-    en: 'MorionKnow AI is grounded, strict, and limited to verified Moriones Festival sources only. How can I help your research today?',
-    tl: 'Ang MorionKnow AI ay sumasagot lamang batay sa verified sources tungkol sa Moriones Festival. Paano kita matutulungan sa iyong research ngayon?',
+    en: 'MorionKnow AI is grounded, strict, and limited to verified Moriones Lenten rites sources only. How can I help your research today?',
+    tl: 'Ang MorionKnow AI ay sumasagot lamang batay sa verified sources tungkol sa Moriones Lenten rites. Paano kita matutulungan sa iyong research ngayon?',
   },
 };
 
@@ -757,7 +757,7 @@ export default function App() {
                 <span className="brand-suffix">AI</span>
               </h1>
               <p className="sidebar-description">
-                Your scholarly companion.
+                Your scholarly companion for authentic Moriones Lenten rites heritage and traditions.
               </p>
             </div>
 

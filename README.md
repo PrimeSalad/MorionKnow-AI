@@ -1,6 +1,6 @@
 # MorionKnow AI
 
-MorionKnow AI is a grounded chatbot about the Moriones Festival. It uses a React frontend and an Express backend powered by the Gemini API with real-time web search for credible sources.
+MorionKnow AI is a grounded chatbot about the Moriones Lenten rites. It uses a React frontend and an Express backend powered by the Gemini API with real-time web search for credible sources.
 
 ## Features
 
@@ -30,4 +30,4 @@ The chatbot ensures accuracy by:
 
 - Without Tavily API key, bot uses only the knowledge base in `text/moriones_data.txt`
 - With Tavily API key, bot searches credible web sources for comprehensive answers
-- Bot only answers questions about Moriones Festival
+- Bot only answers questions about Moriones Lenten rites

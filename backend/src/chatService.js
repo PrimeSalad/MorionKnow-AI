@@ -81,14 +81,14 @@ function buildPrompt(question, language = 'en', webSearchResults = null) {
     : '';
 
   return `
-You are MorionKnow AI, a friendly and knowledgeable assistant about the Moriones Festival.
+You are MorionKnow AI, a friendly and knowledgeable assistant about the Moriones Lenten rites.
 
 INTERACTION RULES:
 1. ALWAYS respond to greetings (hello, hi, kumusta, etc.) in a friendly way - set grounded=true
 2. ALWAYS respond to thank you messages politely - set grounded=true
 3. For casual conversation about yourself or capabilities, be helpful - set grounded=true
-4. For questions clearly UNRELATED to Moriones Festival (politics, math, other topics), respond with grounded=false
-5. For ANY question about Moriones Festival, ALWAYS answer it - set grounded=true
+4. For questions clearly UNRELATED to Moriones Lenten rites (politics, math, other topics), respond with grounded=false
+5. For ANY question about Moriones Lenten rites, ALWAYS answer it - set grounded=true
 
 CRITICAL CONTEXT:
 - Marinduque = ORIGINAL, authentic home since 1807, heritage core, panata-centered Lenten rite
@@ -130,7 +130,7 @@ ${webSearchSection}
 User question:
 ${question}
 
-Remember: Be friendly and helpful. ACCURACY and CREDIBILITY over everything for Moriones info.
+Remember: Be friendly and helpful. ACCURACY and CREDIBILITY over everything for Moriones Lenten rites info.
   `.trim();
 }
 
@@ -140,7 +140,7 @@ async function searchWebForMoriones(question) {
     const client = createClient();
     
     const checkPrompt = `
-Is this question about the Moriones Festival in Marinduque/Mindoro, Philippines?
+Is this question about the Moriones Lenten rites in Marinduque/Mindoro, Philippines?
 Question: "${question}"
 
 Output JSON only:
@@ -165,7 +165,7 @@ Output JSON only:
       return null;
     }
 
-    const searchQuery = `${parsed.searchQuery} Moriones Festival Marinduque Philippines`;
+    const searchQuery = `${parsed.searchQuery} Moriones Lenten rites Marinduque Philippines`;
     console.log(`Searching web for: ${searchQuery}`);
 
     const response = await fetch('https://api.tavily.com/search', {
@@ -266,15 +266,15 @@ export async function generateGroundedAnswer(question, language = null, enableWe
   }
 
   const notGroundedMessage = language === 'tl'
-    ? "Pasensya na, hindi ko masasagot ang tanong na yan. Magtanong tungkol sa Moriones Festival sa Marinduque o Mindoro, at masasagot ko yan!"
-    : "Sorry, I can't answer that question. But ask me anything about the Moriones Festival in Marinduque or Mindoro, and I'll help you!";
+    ? "Pasensya na, hindi ko masasagot ang tanong na yan. Magtanong tungkol sa Moriones Lenten rites sa Marinduque o Mindoro, at masasagot ko yan!"
+    : "Sorry, I can't answer that question. But ask me anything about the Moriones Lenten rites in Marinduque or Mindoro, and I'll help you!";
 
   if (!parsed.grounded) {
     return {
       grounded: false,
       answer: notGroundedMessage,
       citations: [],
-      reason: parsed.reason || "The question was not about Moriones Festival.",
+      reason: parsed.reason || "The question was not about Moriones Lenten rites.",
       language: language,
     };
   }
