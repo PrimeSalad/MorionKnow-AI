@@ -6,9 +6,9 @@ const apiKey = process.env.GEMINI_API_KEY;
 // Model fallback order - try these in sequence if quota exceeded
 // Using correct model names from https://ai.google.dev/gemini-api/docs/models/gemini
 const MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-2.5-pro"
+  "gemini-1.5-flash",
+  "gemini-1.5-pro",
+  "gemini-pro"
 ];
 
 let currentModelIndex = 0;
