@@ -1,7 +1,7 @@
 /**
- * File: App.css
- * Description: Styles for the clean responsive Moriones chat interface.
- * Version: 3.0.1
+ * File: styles.css
+ * Description: Responsive styles for the Moriones chat interface with improved mobile sidebar behavior.
+ * Version: 3.1.0
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Questrial&display=swap');
@@ -28,6 +28,7 @@
   --radius_sm: 14px;
   --sidebar_width: 320px;
   --content_max_width: 980px;
+  --mobile_topbar_height: 74px;
 }
 
 * {
@@ -63,6 +64,14 @@ img {
 
 button {
   cursor: pointer;
+  border: 0;
+}
+
+button:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(227, 59, 47, 0.18);
+  outline-offset: 2px;
 }
 
 .app-shell {
@@ -77,37 +86,22 @@ button {
   min-height: 100dvh;
 }
 
-.mobile-menu-button {
-  position: fixed;
-  top: 18px;
-  left: 18px;
-  z-index: 90;
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--color_border);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--color_text);
-  box-shadow: var(--color_shadow);
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
 .mobile-overlay {
   position: fixed;
   inset: 0;
   z-index: 70;
-  background: rgba(36, 20, 14, 0.18);
-  backdrop-filter: blur(3px);
+  background: rgba(36, 20, 14, 0.26);
+  backdrop-filter: blur(6px);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease;
+  pointer-events: none;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
 }
 
 .mobile-overlay.show {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .sidebar {
@@ -134,15 +128,16 @@ button {
 }
 
 .sidebar-close-button {
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   border: 1px solid var(--color_border);
-  border-radius: 14px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.94);
   color: var(--color_text);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 12px 24px rgba(165, 77, 26, 0.08);
 }
 
 .sidebar-brand,
@@ -197,6 +192,7 @@ button {
 
 .new-chat-button {
   width: 100%;
+  min-height: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,6 +211,30 @@ button {
 .new-chat-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 32px rgba(227, 59, 47, 0.28);
+}
+
+.language-toggle-button {
+  width: 100%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: 1px solid var(--color_border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--color_text);
+  font-weight: 500;
+  font-size: 14px;
+  box-shadow: 0 8px 16px rgba(165, 77, 26, 0.08);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.language-toggle-button:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  box-shadow: 0 12px 24px rgba(165, 77, 26, 0.12);
 }
 
 .chat-history-list {
@@ -300,8 +320,8 @@ button {
 
 .chat-history-delete {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -373,56 +393,23 @@ button {
   min-height: 100vh;
   min-height: 100dvh;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
+}
+
+.mobile-topbar {
+  display: none;
 }
 
 .chat-log {
   min-height: 0;
   overflow-y: auto;
-  padding: 80px 26px 12px;
+  padding: 80px 26px 180px; /* Increased bottom padding so messages don't hide behind composer */
 }
 
 .chat-log-inner {
   width: min(100%, var(--content_max_width));
   margin: 0 auto;
-}
-
-.chat-intro-card {
-  margin-bottom: 18px;
-  padding: 18px;
-  border: 1px solid rgba(160, 74, 24, 0.08);
-  border-radius: 32px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 244, 238, 0.94) 100%);
-  box-shadow: 0 24px 48px rgba(165, 77, 26, 0.08);
-}
-
-.chat-hero {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
-.chat-hero-gif {
-  width: min(100%, 190px);
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 20px 36px rgba(165, 77, 26, 0.12));
-}
-
-.chat-brand-lockup {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-
-.chat-brand-title {
-  margin: 0;
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1;
-  letter-spacing: -0.06em;
-  font-weight: 800;
-  color: var(--color_text);
 }
 
 .chat-starter-grid {
@@ -436,7 +423,7 @@ button {
   width: 100%;
   min-height: 84px;
   text-align: left;
-  padding: 18px 18px;
+  padding: 18px;
   border: 1px solid rgba(160, 74, 24, 0.1);
   border-radius: 20px;
   background: rgba(255, 250, 248, 0.96);
@@ -559,23 +546,8 @@ button {
 }
 
 .message-role.user {
-  color: var(--color_text_muted);
-}
-
-.verified-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 7px 10px;
-  border-radius: 999px;
-  font-size: 11px;
+  color: var(--color_text);
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-family: 'Questrial', sans-serif;
-  color: #8d3300;
-  background: linear-gradient(90deg, rgba(255, 191, 47, 0.2), rgba(227, 59, 47, 0.12));
-  border: 1px solid rgba(255, 153, 0, 0.16);
 }
 
 .message-body p {
@@ -664,29 +636,12 @@ button {
   border-top: 1px solid rgba(160, 74, 24, 0.08);
 }
 
-.chat-starter-copy {
-  margin-bottom: 20px;
-}
-
-.chat-starter-copy h3 {
-  margin: 8px 0 10px;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--color_text);
-}
-
-.chat-starter-copy p {
-  margin: 0;
-  color: var(--color_text_soft);
-  line-height: 1.6;
-  font-size: 14px;
-  font-family: 'Questrial', sans-serif;
-}
-
 .composer-zone {
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: var(--sidebar_width);
+  right: 0;
   z-index: 40;
-  margin-top: auto;
   padding: 14px 26px 18px;
   background:
     linear-gradient(180deg, rgba(255, 246, 241, 0) 0%, rgba(255, 246, 241, 0.52) 34%, rgba(255, 246, 241, 0.78) 100%);
@@ -704,7 +659,7 @@ button {
 
 .composer-form {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: end;
 }
@@ -772,7 +727,8 @@ button {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(227, 59, 47, 0.4);
   }
   50% {
@@ -783,7 +739,6 @@ button {
 .send-button {
   width: 56px;
   height: 56px;
-  border: 0;
   border-radius: 20px;
   color: #ffffff;
   background: linear-gradient(135deg, var(--color_red) 0%, var(--color_orange) 48%, var(--color_yellow) 100%);
@@ -826,21 +781,18 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .mobile-menu-button {
-    display: inline-flex;
-  }
-
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    height: auto;
-    width: min(86vw, 340px);
+    height: 100dvh;
+    width: min(88vw, 360px);
     z-index: 80;
     transform: translateX(-100%);
-    transition: transform 0.22s ease;
+    transition: transform 0.24s ease;
     box-shadow: var(--color_shadow);
+    will-change: transform;
   }
 
   .sidebar.open {
@@ -851,21 +803,79 @@ button {
     display: flex;
   }
 
+  .mobile-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    min-height: var(--mobile_topbar_height);
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 20px 16px;
+    background: rgba(255, 251, 248, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(160, 74, 24, 0.08);
+    box-shadow: 0 2px 12px rgba(165, 77, 26, 0.06);
+  }
+
+  .mobile-topbar-brand {
+    min-width: 0;
+  }
+
+  .mobile-topbar-eyebrow {
+    margin: 0 0 4px;
+    font-family: 'Questrial', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color_text_muted);
+  }
+
+  .mobile-topbar h2 {
+    font-size: 24px;
+  }
+
+  .mobile-topbar-menu {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 16px;
+    background: transparent;
+    color: var(--color_text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.16s ease, opacity 0.16s ease;
+  }
+
+  .mobile-topbar-menu:hover,
+  .mobile-topbar-menu.active {
+    opacity: 0.7;
+  }
+
   .chat-stage {
     min-height: 100vh;
     min-height: 100dvh;
   }
 
   .chat-log {
-    padding: 90px 16px 14px;
+    padding: calc(var(--mobile_topbar_height) + 24px) 20px calc(180px + env(safe-area-inset-bottom, 0px)); /* Increased bottom padding */
   }
 
   .message-row {
-    margin-bottom: 18px;
+    margin-bottom: 24px;
   }
 
   .composer-zone {
-    padding: 12px 16px 16px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px));
   }
 
   .chat-starter-grid {
@@ -876,7 +886,7 @@ button {
 @media (max-width: 640px) {
   .sidebar-brand h1,
   .mobile-topbar h2 {
-    font-size: 25px;
+    font-size: 24px;
   }
 
   .sidebar-brand {
@@ -896,7 +906,12 @@ button {
     max-height: calc(100vh - 380px);
   }
 
+  .chat-history-delete {
+    opacity: 1;
+  }
+
   .message-wrap {
+    width: 100%;
     max-width: 100%;
     gap: 10px;
   }
@@ -929,15 +944,6 @@ button {
     justify-content: center;
   }
 
-  .chat-intro-card {
-    margin-bottom: 16px;
-    padding: 16px;
-  }
-
-  .chat-hero-gif {
-    width: min(100%, 168px);
-  }
-
   .chat-starter-grid {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -951,38 +957,35 @@ button {
 
   .composer-card {
     border-radius: 24px;
-    padding: 12px;
+    padding: 14px;
   }
 
   .composer-form {
     gap: 10px;
+    grid-template-columns: minmax(0, 1fr) auto auto;
   }
 
   .composer-actions {
-    gap: 8px;
-    flex-direction: column;
+    display: contents;
   }
 
   .composer-textarea {
-    min-height: 54px;
-    padding: 14px 16px;
+    min-height: 56px;
+    padding: 16px 18px;
     font-size: 15px;
   }
 
   .mic-button,
   .send-button {
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
     border-radius: 18px;
   }
 }
 
 @media (max-width: 480px) {
-  .mobile-menu-button {
-    top: 14px;
-    left: 14px;
-    width: 44px;
-    height: 44px;
+  :root {
+    --mobile_topbar_height: 70px;
   }
 
   .sidebar-inner {
@@ -1023,29 +1026,29 @@ button {
     font-size: 10px;
   }
 
+  .mobile-topbar {
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 14px;
+  }
+
+  .mobile-topbar h2 {
+    font-size: 22px;
+  }
+
+  .mobile-topbar-menu,
+  .sidebar-close-button {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+  
+  .mobile-topbar-menu {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+
   .chat-log {
-    padding: 70px 12px 12px;
-  }
-
-  .chat-intro-card {
-    margin-bottom: 14px;
-    padding: 14px;
-  }
-
-  .chat-hero {
-    margin-bottom: 4px;
-  }
-
-  .chat-hero-gif {
-    width: min(100%, 148px);
-  }
-
-  .chat-brand-lockup {
-    margin-bottom: 12px;
-  }
-
-  .chat-brand-title {
-    font-size: 28px;
+    padding: calc(var(--mobile_topbar_height) + 20px) 16px calc(180px + env(safe-area-inset-bottom, 0px)); /* Increased bottom padding */
   }
 
   .message-wrap {
@@ -1067,7 +1070,7 @@ button {
   }
 
   .message-card {
-    padding: 14px;
+    padding: 16px;
     border-radius: 18px;
   }
 
@@ -1086,34 +1089,37 @@ button {
   }
 
   .composer-zone {
-    padding: 10px 12px 14px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
   }
 
   .composer-card {
-    padding: 10px;
+    padding: 12px;
   }
 
   .composer-form {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 8px;
   }
 
   .composer-actions {
-    gap: 6px;
-    flex-direction: column;
+    display: contents;
   }
 
   .composer-textarea {
-    min-height: 50px;
-    padding: 13px 14px;
+    min-height: 52px;
+    padding: 15px 16px;
     font-size: 14px;
     border-radius: 18px;
   }
 
   .mic-button,
   .send-button {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     border-radius: 16px;
   }
 
@@ -1121,5 +1127,23 @@ button {
   .send-button svg {
     width: 18px;
     height: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .sidebar {
+    width: 100%;
+  }
+
+  .mobile-topbar h2 {
+    font-size: 20px;
+  }
+
+  .message-card {
+    padding: 12px;
+  }
+
+  .composer-card {
+    border-radius: 20px;
   }
 }

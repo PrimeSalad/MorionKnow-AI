@@ -33,13 +33,15 @@ app.get("/api/health", (_req, res) => {
 
 app.post("/api/chat", async (req, res) => {
   const question = String(req.body?.message || "").trim();
+  const language = String(req.body?.language || "en").trim(); // 'en' or 'tl'
+  const enableWebSearch = req.body?.enableWebSearch !== false; // default true
 
   if (!question) {
     return res.status(400).json({ error: "Message is required." });
   }
 
   try {
-    const reply = await generateGroundedAnswer(question);
+    const reply = await generateGroundedAnswer(question, language, enableWebSearch);
     return res.json(reply);
   } catch (error) {
     return res.status(500).json({

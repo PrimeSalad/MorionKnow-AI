@@ -1,26 +1,38 @@
 /**
  * File: App.js
- * Description: Clean responsive Moriones chat interface.
- * Version: 3.0.0
+ * Description: Responsive Moriones chat interface with improved mobile sidebar and burger behavior.
+ * Version: 3.1.0
  */
 
 import { useEffect, useRef, useState } from 'react';
 import './styles.css';
 
-const STARTER_PROMPTS = [
-  'What is the Moriones Festival?',
-  'When is the Moriones Festival held?',
-  'Who is Longinus in the Moriones Festival story?',
-  'Why do people join the Moriones Festival as penitents?',
-];
+const STARTER_PROMPTS = {
+  en: [
+    'What is the Moriones Festival?',
+    'When is the Moriones Festival held?',
+    'Who is Longinus in the Moriones Festival story?',
+    'Why do people join the Moriones Festival as penitents?',
+  ],
+  tl: [
+    'Ano ang Moriones Festival?',
+    'Kailan ginaganap ang Moriones Festival?',
+    'Sino si Longinus sa kuwento ng Moriones Festival?',
+    'Bakit sumasali ang mga tao sa Moriones Festival bilang penitensya?',
+  ],
+};
 
 const APP_CONFIG = {
   API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
   MAX_TEXTAREA_HEIGHT: 160,
   ASSISTANT_NAME: 'MorionKnow AI',
-  INITIAL_MESSAGE:
-    'MorionKnow AI is grounded, strict, and limited to verified Moriones Festival sources only. How can I help your research today?',
+  INITIAL_MESSAGE: {
+    en: 'MorionKnow AI is grounded, strict, and limited to verified Moriones Festival sources only. How can I help your research today?',
+    tl: 'Ang MorionKnow AI ay sumasagot lamang batay sa verified sources tungkol sa Moriones Festival. Paano kita matutulungan sa iyong research ngayon?',
+  },
 };
+
+const MOBILE_BREAKPOINT = 920;
 
 function parseJsonSafely(text) {
   if (!text) {
@@ -99,6 +111,26 @@ function SourceIcon() {
   );
 }
 
+function GlobeIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="2" y1="12" x2="22" y2="12"></line>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </svg>
+  );
+}
+
 function MenuIcon() {
   return (
     <svg
@@ -115,6 +147,25 @@ function MenuIcon() {
       <line x1="3" y1="6" x2="21" y2="6"></line>
       <line x1="3" y1="12" x2="21" y2="12"></line>
       <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
     </svg>
   );
 }
@@ -144,7 +195,7 @@ function MicIcon({ isListening }) {
       width="20"
       height="20"
       viewBox="0 0 24 24"
-      fill={isListening ? "currentColor" : "none"}
+      fill={isListening ? 'currentColor' : 'none'}
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -233,18 +284,32 @@ function TypingIndicator() {
 export default function App() {
   const chatLogRef = useRef(null);
   const textareaRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const chatHistoryRef = useRef([]);
 
-  // Load chat history from localStorage
   const loadChatHistory = () => {
     try {
       const saved = localStorage.getItem('morionknow_chats');
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed;
+        // Validate that it's an array
+        if (Array.isArray(parsed)) {
+          // Filter out any corrupted chats (missing required fields)
+          return parsed.filter(chat => 
+            chat && 
+            chat.id && 
+            Array.isArray(chat.messages) && 
+            chat.messages.length > 0
+          );
+        }
       }
     } catch (error) {
       console.error('Failed to load chat history:', error);
+      // Clear corrupted data
+      localStorage.removeItem('morionknow_chats');
     }
+
     return [];
   };
 
@@ -255,15 +320,17 @@ export default function App() {
     } catch (error) {
       console.error('Failed to load current chat ID:', error);
     }
+
     return null;
   };
 
+  const [language, setLanguage] = useState('en'); // 'en' or 'tl'
   const [chatHistory, setChatHistory] = useState(loadChatHistory);
   const [currentChatId, setCurrentChatId] = useState(loadCurrentChatId);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: APP_CONFIG.INITIAL_MESSAGE,
+      content: APP_CONFIG.INITIAL_MESSAGE.en,
       citations: [],
     },
   ]);
@@ -272,29 +339,54 @@ export default function App() {
   const [errorText, setErrorText] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
 
-  // Load current chat on mount or when currentChatId changes
+  // Keep chatHistoryRef in sync
+  useEffect(() => {
+    chatHistoryRef.current = chatHistory;
+  }, [chatHistory]);
+
+  function closeSidebar() {
+    setSidebarOpen(false);
+  }
+
+  function toggleSidebar() {
+    setSidebarOpen((currentValue) => !currentValue);
+  }
+
   useEffect(() => {
     if (currentChatId) {
-      const chat = chatHistory.find(c => c.id === currentChatId);
-      if (chat) {
-        setMessages(chat.messages);
+      const chat = chatHistoryRef.current.find((item) => item.id === currentChatId);
+      if (chat && chat.messages && chat.messages.length > 0) {
+        // Only update if we're switching to a different chat
+        setMessages(prevMessages => {
+          // Don't update if we already have more messages (we're in the middle of a conversation)
+          if (prevMessages.length > 1) {
+            return prevMessages;
+          }
+          // Only update if messages are different to prevent flicker
+          const isSameChat = prevMessages.length === chat.messages.length &&
+            prevMessages[0]?.content === chat.messages[0]?.content;
+          return isSameChat ? prevMessages : chat.messages;
+        });
       }
-    } else {
-      // No chat selected, show initial message
-      setMessages([
+      return;
+    }
+
+    // New chat - only update if not already showing initial message
+    setMessages(prevMessages => {
+      if (prevMessages.length === 1 && prevMessages[0].role === 'assistant') {
+        return prevMessages; // Already showing initial message, don't update
+      }
+      return [
         {
           role: 'assistant',
-          content: APP_CONFIG.INITIAL_MESSAGE,
+          content: APP_CONFIG.INITIAL_MESSAGE[language] || APP_CONFIG.INITIAL_MESSAGE.en,
           citations: [],
         },
-      ]);
-    }
-  }, [currentChatId, chatHistory]);
+      ];
+    });
+  }, [currentChatId, language]);
 
-  // Save chat history to localStorage whenever it changes
   useEffect(() => {
     try {
       localStorage.setItem('morionknow_chats', JSON.stringify(chatHistory));
@@ -303,7 +395,6 @@ export default function App() {
     }
   }, [chatHistory]);
 
-  // Save current chat ID to localStorage
   useEffect(() => {
     try {
       if (currentChatId) {
@@ -316,23 +407,25 @@ export default function App() {
     }
   }, [currentChatId]);
 
-  // Update current chat in history whenever messages change
   useEffect(() => {
     if (currentChatId && messages.length > 1) {
-      setChatHistory(prev => {
-        const updated = prev.map(chat => {
-          if (chat.id === currentChatId) {
-            return {
-              ...chat,
-              messages,
-              updatedAt: Date.now(),
-              title: chat.title || messages.find(m => m.role === 'user')?.content.slice(0, 50) || 'New Chat'
-            };
+      setChatHistory((previousChats) =>
+        previousChats.map((chat) => {
+          if (chat.id !== currentChatId) {
+            return chat;
           }
-          return chat;
-        });
-        return updated;
-      });
+
+          return {
+            ...chat,
+            messages,
+            updatedAt: Date.now(),
+            title:
+              chat.title ||
+              messages.find((message) => message.role === 'user')?.content.slice(0, 50) ||
+              'New Chat',
+          };
+        })
+      );
     }
   }, [messages, currentChatId]);
 
@@ -352,8 +445,8 @@ export default function App() {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         try {
           mediaRecorderRef.current.stop();
-        } catch (e) {
-          // Ignore errors on cleanup
+        } catch (error) {
+          console.error('Failed to stop media recorder during cleanup:', error);
         }
       }
     };
@@ -371,6 +464,55 @@ export default function App() {
     )}px`;
   }, [input]);
 
+  useEffect(() => {
+    if (!sidebarOpen || window.innerWidth > MOBILE_BREAKPOINT) {
+      return undefined;
+    }
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, [sidebarOpen]);
+
+  useEffect(() => {
+    if (!sidebarOpen) {
+      return undefined;
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        closeSidebar();
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [sidebarOpen]);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth > MOBILE_BREAKPOINT) {
+        setSidebarOpen(false);
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   async function sendMessage(messageText) {
     const trimmedMessage = messageText.trim();
 
@@ -378,7 +520,6 @@ export default function App() {
       return;
     }
 
-    // Create new chat if none exists
     if (!currentChatId) {
       const newChatId = `chat_${Date.now()}`;
       const newChat = {
@@ -387,14 +528,15 @@ export default function App() {
         messages: [
           {
             role: 'assistant',
-            content: APP_CONFIG.INITIAL_MESSAGE,
+            content: APP_CONFIG.INITIAL_MESSAGE[language],
             citations: [],
           },
         ],
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
-      setChatHistory(prev => [newChat, ...prev]);
+
+      setChatHistory((previousChats) => [newChat, ...previousChats]);
       setCurrentChatId(newChatId);
     }
 
@@ -407,7 +549,7 @@ export default function App() {
     setInput('');
     setErrorText('');
     setLoading(true);
-    setSidebarOpen(false);
+    closeSidebar();
 
     try {
       const response = await fetch(`${APP_CONFIG.API_BASE_URL}/api/chat`, {
@@ -417,6 +559,8 @@ export default function App() {
         },
         body: JSON.stringify({
           message: trimmedMessage,
+          language: language,
+          enableWebSearch: true,
         }),
       });
 
@@ -464,49 +608,47 @@ export default function App() {
     }
 
     if (isListening) {
-      // Stop recording
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop();
       }
       setIsListening(false);
-    } else {
-      // Start recording
-      try {
-        setErrorText('');
-        audioChunksRef.current = [];
-        
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
+      return;
+    }
 
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            audioChunksRef.current.push(event.data);
-          }
-        };
+    try {
+      setErrorText('');
+      audioChunksRef.current = [];
 
-        mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-          stream.getTracks().forEach(track => track.stop());
-          
-          // Send to backend for transcription
-          await transcribeAudio(audioBlob);
-        };
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
 
-        mediaRecorder.start();
-        setIsListening(true);
-        console.log('Recording started');
-      } catch (e) {
-        console.error('Error starting recording:', e);
-        setErrorText('Failed to start voice input. Please check microphone permissions.');
-        setIsListening(false);
-      }
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        stream.getTracks().forEach((track) => track.stop());
+        await transcribeAudio(audioBlob);
+      };
+
+      mediaRecorder.start();
+      setIsListening(true);
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      setErrorText('Failed to start voice input. Please check microphone permissions.');
+      setIsListening(false);
     }
   }
 
   async function transcribeAudio(audioBlob) {
     try {
       setLoading(true);
+
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
 
@@ -522,7 +664,7 @@ export default function App() {
       }
 
       if (data.text) {
-        setInput((prev) => prev + (prev ? ' ' : '') + data.text);
+        setInput((previousInput) => previousInput + (previousInput ? ' ' : '') + data.text);
       }
     } catch (error) {
       console.error('Transcription error:', error);
@@ -537,21 +679,27 @@ export default function App() {
     setMessages([
       {
         role: 'assistant',
-        content: APP_CONFIG.INITIAL_MESSAGE,
+        content: APP_CONFIG.INITIAL_MESSAGE[language] || APP_CONFIG.INITIAL_MESSAGE.en,
         citations: [],
       },
     ]);
-    setSidebarOpen(false);
+    closeSidebar();
+  }
+
+  function toggleLanguage() {
+    setLanguage((prev) => (prev === 'en' ? 'tl' : 'en'));
   }
 
   function selectChat(chatId) {
     setCurrentChatId(chatId);
-    setSidebarOpen(false);
+    closeSidebar();
   }
 
   function deleteChat(chatId, event) {
     event.stopPropagation();
-    setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
+
+    setChatHistory((previousChats) => previousChats.filter((chat) => chat.id !== chatId));
+
     if (currentChatId === chatId) {
       setCurrentChatId(null);
     }
@@ -569,6 +717,7 @@ export default function App() {
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
+
     return date.toLocaleDateString();
   }
 
@@ -576,29 +725,25 @@ export default function App() {
     <main className="app-shell">
       <div
         className={`mobile-overlay ${sidebarOpen ? 'show' : ''}`}
-        onClick={() => setSidebarOpen(false)}
+        onClick={closeSidebar}
+        aria-hidden={!sidebarOpen}
       ></div>
 
-      <button
-        type="button"
-        className="mobile-menu-button"
-        onClick={() => setSidebarOpen(true)}
-        aria-label="Open menu"
-      >
-        <MenuIcon />
-      </button>
-
       <div className="app-layout">
-        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <aside
+          id="app-sidebar"
+          className={`sidebar ${sidebarOpen ? 'open' : ''}`}
+          aria-hidden={!sidebarOpen && typeof window !== 'undefined' && window.innerWidth <= MOBILE_BREAKPOINT}
+        >
           <div className="sidebar-inner">
             <div className="sidebar-mobile-actions">
               <button
                 type="button"
                 className="sidebar-close-button"
-                onClick={() => setSidebarOpen(false)}
+                onClick={closeSidebar}
                 aria-label="Close sidebar"
               >
-                ✕
+                <CloseIcon />
               </button>
             </div>
 
@@ -624,6 +769,7 @@ export default function App() {
 
             <div className="sidebar-section">
               <h3 className="sidebar-section-title">Chat History</h3>
+
               <div className="chat-history-list">
                 {chatHistory.length === 0 ? (
                   <p className="empty-history">No chats yet. Start a conversation!</p>
@@ -638,10 +784,11 @@ export default function App() {
                         <div className="chat-history-title">{chat.title}</div>
                         <div className="chat-history-date">{formatChatDate(chat.updatedAt)}</div>
                       </div>
+
                       <button
                         type="button"
                         className="chat-history-delete"
-                        onClick={(e) => deleteChat(chat.id, e)}
+                        onClick={(event) => deleteChat(chat.id, event)}
                         aria-label="Delete chat"
                       >
                         <TrashIcon />
@@ -663,6 +810,27 @@ export default function App() {
         </aside>
 
         <section className="chat-stage">
+          <header className="mobile-topbar">
+            <div className="mobile-topbar-brand">
+              <p className="mobile-topbar-eyebrow">Strict Research Mode</p>
+              <h2>
+                <span className="brand-gradient">MorionKnow</span>{' '}
+                <span className="brand-suffix">AI</span>
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              className={`mobile-topbar-menu ${sidebarOpen ? 'active' : ''}`}
+              onClick={toggleSidebar}
+              aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={sidebarOpen}
+              aria-controls="app-sidebar"
+            >
+              {sidebarOpen ? <CloseIcon /> : <MenuIcon />}
+            </button>
+          </header>
+
           <div className="chat-log" ref={chatLogRef}>
             <div className="chat-log-inner">
               {messages.map((item, index) => (
@@ -674,7 +842,7 @@ export default function App() {
               {messages.length === 1 ? (
                 <section className="chat-starter-panel" aria-label="Research starters">
                   <div className="chat-starter-grid">
-                    {STARTER_PROMPTS.map((prompt) => (
+                    {STARTER_PROMPTS[language].map((prompt) => (
                       <button
                         key={prompt}
                         type="button"
@@ -701,7 +869,7 @@ export default function App() {
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
                   onKeyDown={handleTextareaKeyDown}
-                  placeholder="Ask MorionKnow AI..."
+                  placeholder={language === 'en' ? 'Ask MorionKnow AI...' : 'Magtanong sa MorionKnow AI...'}
                   rows={1}
                 />
 
@@ -727,11 +895,11 @@ export default function App() {
                 </div>
               </form>
 
-              {errorText && (
+              {errorText ? (
                 <div className="composer-footer">
                   <span className="error-text">{errorText}</span>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </section>
