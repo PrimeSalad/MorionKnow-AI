@@ -3,3 +3,4 @@ dist
 .env
 backend/.cache
 frontend/.vite
+backend/uploads

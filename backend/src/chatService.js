@@ -51,7 +51,10 @@ ${question}
 
 export async function generateGroundedAnswer(question) {
   const client = createClient();
-  const model = client.getGenerativeModel({ model: "gemini-1.5-flash" });
+  
+  // Use gemini-2.5-flash which is available on free tier (March 2026)
+  const model = client.getGenerativeModel({ model: "gemini-2.5-flash" });
+  
   const result = await model.generateContent(buildPrompt(question));
   const text = extractJsonPayload(result.response.text());
 

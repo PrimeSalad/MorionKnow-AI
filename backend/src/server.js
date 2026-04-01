@@ -1,12 +1,18 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import multer from "multer";
+import fs from "fs";
 import { generateGroundedAnswer } from "./chatService.js";
 import { getKnowledgeBase } from "./knowledge.js";
+import { transcribeAudio } from "./transcribeService.js";
 
 const app = express();
 const port = Number(process.env.PORT || 3001);
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
+// Configure multer for file uploads
+const upload = multer({ dest: "uploads/" });
 
 app.use(
   cors({
@@ -38,6 +44,34 @@ app.post("/api/chat", async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       error: error.message || "Failed to generate a response.",
+    });
+  }
+});
+
+app.post("/api/transcribe", upload.single("audio"), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "Audio file is required." });
+  }
+
+  try {
+    const text = await transcribeAudio(req.file.path);
+    
+    // Clean up uploaded file
+    fs.unlinkSync(req.file.path);
+    
+    return res.json({ text });
+  } catch (error) {
+    // Clean up uploaded file on error
+    if (req.file?.path) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+    
+    return res.status(500).json({
+      error: error.message || "Failed to transcribe audio.",
     });
   }
 });
