@@ -3,15 +3,27 @@ import { getKnowledgeBase } from "./knowledge.js";
 
 const apiKey = process.env.GEMINI_API_KEY;
 
-// Model fallback order - try these in sequence if quota exceeded
-// Using FREE TIER models from https://ai.google.dev/gemini-api/docs/models (April 2026)
+// Model fallback order - OPTIMIZED for free tier RPM limits
+// Flash-Lite: 15 RPM (1000 RPD), Flash: 10 RPM (250 RPD), Pro: 5 RPM (100 RPD)
 const MODELS = [
-  "gemini-2.5-flash",        // Fast, free, stable
-  "gemini-2.5-flash-lite",   // Cheaper, high-throughput
-  "gemini-2.5-pro"           // Best reasoning, still free
+  "gemini-2.5-flash-lite",   // 15 RPM - fastest, highest limit
+  "gemini-2.5-flash",        // 10 RPM - backup
+  "gemini-1.5-flash"         // 15 RPM - stable fallback
 ];
 
 let currentModelIndex = 0;
+
+// Exponential backoff with jitter for rate limits
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getRetryDelay(attempt) {
+  // Exponential backoff: 1s, 2s, 4s, 8s with jitter
+  const baseDelay = Math.min(1000 * Math.pow(2, attempt), 8000);
+  const jitter = Math.random() * 1000; // Add 0-1s randomness
+  return baseDelay + jitter;
+}
 
 function extractJsonPayload(text) {
   const trimmed = text.trim();
@@ -34,38 +46,64 @@ function createClient() {
 function getModel(client) {
   const modelName = MODELS[currentModelIndex];
   console.log(`Using model: ${modelName}`);
-  return client.getGenerativeModel({ model: modelName });
+  return client.getGenerativeModel({ 
+    model: modelName,
+    generationConfig: {
+      maxOutputTokens: 500, // Limit response length to save tokens
+      temperature: 0.7,
+    }
+  });
 }
 
 async function generateWithFallback(client, prompt) {
   let lastError = null;
+  const maxRetries = 3;
   
-  // Try each model in sequence
-  for (let i = currentModelIndex; i < MODELS.length; i++) {
-    try {
-      currentModelIndex = i;
-      const model = getModel(client);
-      const result = await model.generateContent(prompt);
-      return result;
-    } catch (error) {
-      lastError = error;
-      console.error(`Model ${MODELS[i]} failed:`, error.message);
-      
-      // If it's a quota error or model not found, try next model
-      if (error.message.includes('quota') || 
-          error.message.includes('429') || 
-          error.message.includes('404') ||
-          error.message.includes('not found')) {
-        console.log(`Issue with ${MODELS[i]}, trying next model...`);
-        continue;
+  // Try each model with retry logic
+  for (let modelIdx = currentModelIndex; modelIdx < MODELS.length; modelIdx++) {
+    currentModelIndex = modelIdx;
+    const model = client.getGenerativeModel({ model: MODELS[modelIdx] });
+    console.log(`Trying model: ${MODELS[modelIdx]}`);
+    
+    // Retry with exponential backoff for rate limits
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const result = await model.generateContent(prompt);
+        return result;
+      } catch (error) {
+        lastError = error;
+        const errorMsg = error.message || '';
+        
+        // Check if it's a rate limit error (429)
+        if (errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('RESOURCE_EXHAUSTED')) {
+          console.log(`Rate limit hit on ${MODELS[modelIdx]}, attempt ${attempt + 1}/${maxRetries}`);
+          
+          if (attempt < maxRetries - 1) {
+            // Retry with exponential backoff
+            const delay = getRetryDelay(attempt);
+            console.log(`Retrying in ${Math.round(delay)}ms...`);
+            await sleep(delay);
+            continue;
+          } else {
+            // Max retries reached, try next model
+            console.log(`Max retries reached for ${MODELS[modelIdx]}, trying next model...`);
+            break;
+          }
+        }
+        
+        // For other errors (404, 400, etc), try next model immediately
+        if (errorMsg.includes('404') || errorMsg.includes('not found')) {
+          console.log(`Model ${MODELS[modelIdx]} not found, trying next...`);
+          break;
+        }
+        
+        // For unexpected errors, throw immediately
+        throw error;
       }
-      
-      // If it's not a quota/404 error, throw immediately
-      throw error;
     }
   }
   
-  // All models failed - hide details from user
+  // All models exhausted - hide details from user
   console.error('All models failed:', lastError?.message);
   throw new Error('Service temporarily unavailable');
 }
