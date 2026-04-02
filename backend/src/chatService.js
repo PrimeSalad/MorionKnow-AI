@@ -25,7 +25,7 @@ function extractJsonPayload(text) {
 
 function createClient() {
   if (!apiKey) {
-    throw new Error("Missing GEMINI_API_KEY. Add it to backend/.env before starting the server.");
+    throw new Error("Service unavailable");
   }
 
   return new GoogleGenerativeAI(apiKey);
@@ -65,8 +65,9 @@ async function generateWithFallback(client, prompt) {
     }
   }
   
-  // All models failed
-  throw new Error(`All models exhausted. Last error: ${lastError?.message || 'Unknown error'}`);
+  // All models failed - hide details from user
+  console.error('All models failed:', lastError?.message);
+  throw new Error('Service temporarily unavailable');
 }
 
 function buildPrompt(question, language = 'en', webSearchResults = null) {
@@ -81,40 +82,27 @@ function buildPrompt(question, language = 'en', webSearchResults = null) {
     : '';
 
   return `
-You are MorionKnow AI, a friendly and knowledgeable assistant about the Moriones Lenten rites.
+You are MorionKnow AI, a friendly assistant about Moriones Lenten rites.
 
-INTERACTION RULES:
-1. ALWAYS respond to greetings (hello, hi, kumusta, etc.) in a friendly way - set grounded=true
-2. ALWAYS respond to thank you messages politely - set grounded=true
-3. For casual conversation about yourself or capabilities, be helpful - set grounded=true
-4. For questions clearly UNRELATED to Moriones Lenten rites (politics, math, other topics), respond with grounded=false
-5. For ANY question about Moriones Lenten rites, ALWAYS answer it - set grounded=true
+RULES:
+1. Respond to greetings/thanks - set grounded=true
+2. For Moriones questions, answer briefly - set grounded=true
+3. For unrelated topics - set grounded=false
+4. Keep answers SHORT (2-3 sentences max)
+5. Be concise and direct
 
-CRITICAL CONTEXT:
-- Marinduque = ORIGINAL, authentic home since 1807, heritage core, panata-centered Lenten rite
-- Mindoro = adapted municipal celebration modeled after Marinduque (secondary/derivative)
-- Always emphasize Marinduque as the authentic origin when discussing the festival
+KEY FACTS:
+- Marinduque = ORIGINAL home since 1807
+- Mindoro = adapted from Marinduque
 
-SOURCE CREDIBILITY RULES:
-- ALWAYS prioritize information from:
-  * Official government sources (.gov.ph domains)
-  * UNESCO and academic institutions
-  * Verified historical documents
-  * Web search results from credible domains
-- NEVER make up information or sources
-- ALWAYS cite the exact source URL in your citations array
-- If you don't have credible information, say so honestly
-
-FORMATTING RULES:
-- Write in plain text WITHOUT any markdown formatting
-- DO NOT use asterisks (*) for bold or emphasis
-- DO NOT use underscores (_) for italics
-- DO NOT use markdown headers (#)
-- Use simple, clear sentences without special formatting characters
+FORMATTING:
+- Plain text only, no markdown
+- No asterisks, underscores, or headers
+- Simple sentences
 
 ${languageInstruction}
 
-Output valid JSON only:
+Output JSON:
 {
   "grounded": boolean,
   "answer": string,
@@ -123,14 +111,13 @@ Output valid JSON only:
   "language": "${language}"
 }
 
-VERIFIED KNOWLEDGE BASE:
+KNOWLEDGE:
 ${knowledge.text}
 ${webSearchSection}
 
-User question:
-${question}
+Question: ${question}
 
-Remember: Be friendly and helpful. ACCURACY and CREDIBILITY over everything for Moriones Lenten rites info.
+IMPORTANT: Keep answer SHORT (2-3 sentences). Be concise.
   `.trim();
 }
 
@@ -139,16 +126,7 @@ async function searchWebForMoriones(question) {
     // First, check if question is about Moriones
     const client = createClient();
     
-    const checkPrompt = `
-Is this question about the Moriones Lenten rites in Marinduque/Mindoro, Philippines?
-Question: "${question}"
-
-Output JSON only:
-{
-  "isMoriones": boolean,
-  "searchQuery": string or null
-}
-    `.trim();
+    const checkPrompt = `Is this about Moriones?\nQ: "${question}"\nJSON: {"isMoriones": bool, "searchQuery": ""}`;
 
     const checkResult = await generateWithFallback(client, checkPrompt);
     const checkText = extractJsonPayload(checkResult.response.text());
@@ -219,16 +197,7 @@ Output JSON only:
 
 async function detectLanguage(client, question) {
   try {
-    const detectPrompt = `
-Detect the language of this text. Return ONLY "tl" for Tagalog/Filipino or "en" for English.
-
-Text: "${question}"
-
-Output JSON only:
-{
-  "language": "tl" or "en"
-}
-    `.trim();
+    const detectPrompt = `Language? "tl" or "en"\nText: "${question}"\nJSON: {"language": ""}`;
 
     const result = await generateWithFallback(client, detectPrompt);
     const text = extractJsonPayload(result.response.text());
@@ -262,7 +231,7 @@ export async function generateGroundedAnswer(question, language = null, enableWe
   try {
     parsed = JSON.parse(text);
   } catch {
-    throw new Error("Model returned an invalid response format.");
+    throw new Error("Service error. Try again.");
   }
 
   const notGroundedMessage = language === 'tl'

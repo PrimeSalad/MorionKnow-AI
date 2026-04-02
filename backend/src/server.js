@@ -68,8 +68,15 @@ app.post("/api/chat", async (req, res) => {
     const reply = await generateGroundedAnswer(question, language, enableWebSearch);
     return res.json(reply);
   } catch (error) {
+    console.error('Chat error:', error.message);
+    
+    // Generic error message - hide API details
+    const userMessage = language === 'tl' 
+      ? "Sandali lang, may problema sa server. Subukan ulit."
+      : "Server busy. Please try again.";
+    
     return res.status(500).json({
-      error: error.message || "Failed to generate a response.",
+      error: userMessage,
     });
   }
 });
@@ -87,6 +94,8 @@ app.post("/api/transcribe", upload.single("audio"), async (req, res) => {
     
     return res.json({ text });
   } catch (error) {
+    console.error('Transcribe error:', error.message);
+    
     // Clean up uploaded file on error
     if (req.file?.path) {
       try {
@@ -97,7 +106,7 @@ app.post("/api/transcribe", upload.single("audio"), async (req, res) => {
     }
     
     return res.status(500).json({
-      error: error.message || "Failed to transcribe audio.",
+      error: "Audio processing failed. Try again.",
     });
   }
 });
