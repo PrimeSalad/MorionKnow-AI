@@ -120,11 +120,11 @@ function buildPrompt(question, language = 'en', webSearchResults = null) {
     : '';
 
   return `
-You are MorionKnow AI, a friendly assistant about Moriones Lenten rites.
+You are MorionKnow AI, a friendly assistant about Moryonan.
 
 RULES:
 1. Respond to greetings/thanks - set grounded=true
-2. For Moriones questions, answer briefly - set grounded=true
+2. For Moryonan questions, answer briefly - set grounded=true
 3. For unrelated topics - set grounded=false
 4. Keep answers SHORT (2-3 sentences max)
 5. Be concise and direct
@@ -161,10 +161,10 @@ IMPORTANT: Keep answer SHORT (2-3 sentences). Be concise.
 
 async function searchWebForMoriones(question) {
   try {
-    // First, check if question is about Moriones
+    // First, check if question is about Moryonan
     const client = createClient();
     
-    const checkPrompt = `Is this about Moriones?\nQ: "${question}"\nJSON: {"isMoriones": bool, "searchQuery": ""}`;
+    const checkPrompt = `Is this about Moryonan?\nQ: "${question}"\nJSON: {"isMoriones": bool, "searchQuery": ""}`;
 
     const checkResult = await generateWithFallback(client, checkPrompt);
     const checkText = extractJsonPayload(checkResult.response.text());
@@ -181,7 +181,7 @@ async function searchWebForMoriones(question) {
       return null;
     }
 
-    const searchQuery = `${parsed.searchQuery} Moriones Lenten rites Marinduque Philippines`;
+    const searchQuery = `${parsed.searchQuery} Moryonan Marinduque Philippines`;
     console.log(`Searching web for: ${searchQuery}`);
 
     const response = await fetch('https://api.tavily.com/search', {
@@ -273,15 +273,15 @@ export async function generateGroundedAnswer(question, language = null, enableWe
   }
 
   const notGroundedMessage = language === 'tl'
-    ? "Pasensya na, hindi ko masasagot ang tanong na yan. Magtanong tungkol sa Moriones Lenten rites, at masasagot ko yan!"
-    : "Sorry, I can't answer that question. But ask me anything about the Moriones Lenten rites, and I'll help you!";
+    ? "Pasensya na, hindi ko masasagot ang tanong na yan. Magtanong tungkol sa Moryonan, at masasagot ko yan!"
+    : "Sorry, I can't answer that question. But ask me anything about Moryonan, and I'll help you!";
 
   if (!parsed.grounded) {
     return {
       grounded: false,
       answer: notGroundedMessage,
       citations: [],
-      reason: parsed.reason || "The question was not about Moriones Lenten rites.",
+      reason: parsed.reason || "Not about Moryonan.",
       language: language,
     };
   }
@@ -310,7 +310,7 @@ export async function generateGroundedAnswer(question, language = null, enableWe
     grounded: true,
     answer: parsed.answer,
     citations,
-    reason: parsed.reason || "Answer grounded in the provided source text.",
+    reason: parsed.reason || "Grounded in source.",
     language: language,
   };
 }

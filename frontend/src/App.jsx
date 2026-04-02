@@ -9,16 +9,16 @@ import './styles.css';
 
 const STARTER_PROMPTS = {
   en: [
-    'What are the Moriones Lenten rites?',
-    'When are the Moriones Lenten rites held?',
-    'Who is Longinus in the Moriones Lenten rites story?',
-    'Why do people participate in the Moriones Lenten rites?',
+    'What is Moryonan?',
+    'When is Moryonan held?',
+    'Who is Longinus in Moryonan?',
+    'Why do people participate in Moryonan?',
   ],
   tl: [
-    'Ano ang mga Moriones Lenten rites?',
-    'Kailan ginaganap ang Moriones Lenten rites?',
-    'Sino si Longinus sa kuwento ng Moriones Lenten rites?',
-    'Bakit sumasali ang mga tao sa Moriones Lenten rites?',
+    'Ano ang Moryonan?',
+    'Kailan ginaganap ang Moryonan?',
+    'Sino si Longinus sa Moryonan?',
+    'Bakit sumasali ang mga tao sa Moryonan?',
   ],
 };
 
@@ -27,8 +27,8 @@ const APP_CONFIG = {
   MAX_TEXTAREA_HEIGHT: 160,
   ASSISTANT_NAME: 'MorionKnow AI',
   INITIAL_MESSAGE: {
-    en: 'MorionKnow AI is grounded, strict, and limited to verified Moriones Lenten rites sources only. How can I help your research today?',
-    tl: 'Ang MorionKnow AI ay sumasagot lamang batay sa verified sources tungkol sa Moriones Lenten rites. Paano kita matutulungan sa iyong research ngayon?',
+    en: 'MorionKnow AI is grounded and focused on verified Moryonan sources. How can I help you today?',
+    tl: 'Ang MorionKnow AI ay sumasagot batay sa verified sources tungkol sa Moryonan. Paano kita matutulungan ngayon?',
   },
 };
 
