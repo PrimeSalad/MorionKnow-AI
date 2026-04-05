@@ -8,7 +8,7 @@ const knowledgePath = path.resolve(__dirname, "../../text/moriones_data.txt");
 
 const rawText = fs.readFileSync(knowledgePath, "utf8");
 
-const sourcePattern = /Source:\s*(https?:\/\/\S+)/gi;
+const sourcePattern = /^Source:\s*(https?:\/\/\S+)/gim;
 const sources = Array.from(rawText.matchAll(sourcePattern)).map((match) => match[1]);
 
 const normalizedKnowledge = rawText

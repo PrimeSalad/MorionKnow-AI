@@ -150,6 +150,11 @@ Output JSON:
   "language": "${language}"
 }
 
+CITATION RULES:
+- citations must only contain URLs that appear verbatim in the KNOWLEDGE section above (lines starting with "Source: https://...")
+- If no exact URL match, return citations as empty array []
+- Never invent or guess URLs
+
 KNOWLEDGE:
 ${knowledge.text}
 ${webSearchSection}
@@ -289,12 +294,11 @@ export async function generateGroundedAnswer(question, language = null, enableWe
 
   const knowledge = getKnowledgeBase();
   const citations = Array.isArray(parsed.citations)
-    ? parsed.citations.filter((citation) => {
-        // Accept citations from knowledge base, valid URLs, or general source names
-        return knowledge.sources.includes(citation) || 
-               citation.startsWith('http') || 
-               citation.length > 5; // Accept general source names
-      })
+    ? parsed.citations.filter((citation) =>
+        typeof citation === 'string' &&
+        citation.startsWith('http') &&
+        knowledge.sources.includes(citation)
+      )
     : [];
 
   if (!parsed.answer) {
