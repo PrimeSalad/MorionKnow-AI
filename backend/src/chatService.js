@@ -130,8 +130,9 @@ RULES:
 5. Be concise and direct
 
 KEY FACTS:
-- Marinduque = ORIGINAL home since 1807
-- Mindoro = adapted from Marinduque
+- Marinduque = ORIGINAL and ONLY authentic home of Moryonan
+- The festival was introduced by Fr. Dionisio Santiago in Mogpog. Historical sources cite the origin between 1807 (House Bill No. 6087, official legislative record) and 1870 (Inquirer, quoting provincial tourism officer Dindo Asuncion). The exact year is debated among historians.
+
 
 FORMATTING:
 - Plain text only, no markdown
